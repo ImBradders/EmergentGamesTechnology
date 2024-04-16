@@ -23,6 +23,10 @@
 		{
 			"Name": "JsonBlueprintUtilities",
 			"Enabled": true
+		},
+		{
+			"Name": "HttpBlueprint",
+			"Enabled": true
 		}
 	]
 }
