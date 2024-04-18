@@ -17,7 +17,11 @@ class Person {
     public function saveToFile($path) {
         try {
             $file = fopen($path, "a+");
-            $toWrite = sprintf("%s,%s,%s,%s", $this->name, $this->nickname, $this->age, $this->role);
+            if (!$file) {
+                echo "Unable to write person to file - check permissions!\n";
+                return false;
+            }
+            $toWrite = sprintf("%s,%s,%s,%s\n", $this->name, $this->nickname, $this->age, $this->role);
             fwrite($file, $toWrite);
             fclose($file);
         }

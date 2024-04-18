@@ -1,12 +1,14 @@
 <?php
 
+require "Person.php";
+
 class RESTService {
     private $supportedMethods;
     private $filePath;
     
     public function __construct() {
         $this->supportedMethods = "GET, PUT, POST, DELETE";
-        $this->filePath = "person.txt";
+        $this->filePath = "/var/www/data/person.txt";
     }
     
     public function handleRequest() {
@@ -18,16 +20,14 @@ class RESTService {
         if (isset($_GET['q'])) {
             $parameters = explode("/", $_GET['q']);
         }
-        else
-        {
+        else {
             $parameters = array();
         }
 
         if(isset($_SERVER['HTTP_ACCEPT'])) {
             $accept = $_SERVER['HTTP_ACCEPT'];
         }
-        else
-        {
+        else {
             $accept = "";
         }
 
@@ -55,16 +55,22 @@ class RESTService {
         $people = array();
         try {
             $myfile = fopen($this->filePath, "r");
+            echo "opened file\n";
             while(!feof($myfile)) {
+                echo "a\n";
                 $line = fgets($myfile);
+                echo "b\n";
                 $details = explode(',', $line);
+                echo "c\n";
                 $people[] = new Person($details[0], $details[1], $details[2], $details[3]);
+                echo "d\n";
             }
             fclose($myfile);
+            echo "closed file\n";
         }
         catch (Exception $e) {
-            $this->internalErrorResponse();
             echo $e->getMessage();
+            $this->internalErrorResponse();
         }
 
         switch($parameters[0]) {
