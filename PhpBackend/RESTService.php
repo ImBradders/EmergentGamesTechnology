@@ -79,7 +79,7 @@ class RESTService {
                     return;
                 }
                 foreach ($people as &$person) {
-                    if (strcmp($person->name, $parameters[1])) {
+                    if (strpos($person->name, $parameters[1]) !== false) {
                         echo json_encode($person);
                         return;
                     }
