@@ -55,18 +55,14 @@ class RESTService {
         $people = array();
         try {
             $myfile = fopen($this->filePath, "r");
-            echo "opened file\n";
             while(!feof($myfile)) {
-                echo "a\n";
                 $line = fgets($myfile);
-                echo "b\n";
                 $details = explode(',', $line);
-                echo "c\n";
-                $people[] = new Person($details[0], $details[1], $details[2], $details[3]);
-                echo "d\n";
+                if (count($details) == 4){
+                    $people[] = new Person($details[0], $details[1], $details[2], $details[3]);
+                }
             }
             fclose($myfile);
-            echo "closed file\n";
         }
         catch (Exception $e) {
             echo $e->getMessage();
