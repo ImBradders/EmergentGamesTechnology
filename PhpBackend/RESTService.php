@@ -31,58 +31,112 @@ class RESTService {
             $accept = "";
         }
 
-        $this->selectMethod($_HEADERS, $method, $parameters, $requestBody, $accept);
+        $this->selectMethod($headers, $method, $parameters, $accept);
     }
 
-    public function selectMethod($_HEADERS, $method, $parameters, $requestBody, $accept) {
+    public function selectMethod($headers, $method, $parameters, $accept) {
         switch($method) {
             case 'GET':
-                $this->performGet($_HEADERS, $parameters, $requestBody, $accept);
+                $this->performGet($headers, $parameters, $accept);
                 break;
             case 'POST': //create stuff
-                $this->performPost($_HEADERS, $parameters, $requestBody, $accept);
+                $this->performPost($headers, $parameters, $accept);
                 break;
             case 'PUT': //this is to update stuff
-                $this->performPut($_HEADERS, $parameters, $requestBody, $accept);
-                break;
             case 'DELETE':
-                $this->performDelete($_HEADERS, $parameters, $requestBody, $accept);
-                break;
             default:
                 $this->notImplementedResponse();
                 break;
         }
     }
 
-    public function performGet($_HEADERS, $parameters, $requestBody, $accept) {
+    public function performGet($headers, $parameters, $accept) {
+        // load the file
+        $people = array();
+        try {
+            $myfile = fopen($this->filePath, "r");
+            while(!feof($myfile)) {
+                $line = fgets($myfile);
+                $details = explode(',', $line);
+                $people[] = new Person($details[0], $details[1], $details[2], $details[3]);
+            }
+            fclose($myfile);
+        }
+        catch (Exception $e) {
+            $this->internalErrorResponse();
+            echo $e->getMessage();
+        }
+
+        switch($parameters[0]) {
+            case "people":
+                echo json_encode($people);
+                break;
+            case "person":
+                if (count($parameters) < 2) {
+                    $this->badRequestResponse();
+                    return;
+                }
+                foreach ($people as &$person) {
+                    if (strcmp($person->name, $parameters[1])) {
+                        echo json_encode($person);
+                        return;
+                    }
+                }
+                break;
+            default:
+                $this->noContentResponse();
+                break;
+        }
+    }
+
+    public function performPost($headers, $parameters, $accept) {
+        switch($parameters[0]) {
+            case "person":
+                if (count($parameters) < 5) {
+                    $this->badRequestResponse();
+                    return;
+                }
+                // create the new person and write to file.
+                $person = new Person($parameters[1], $parameters[2], $parameters[3], $parameters[4]);
+                if (!$person->saveToFile($this->filePath)) {
+                    $this->internalErrorResponse();
+                }
+                break;
+            default:
+                $this->noContentResponse();
+                break;
+        }
+    }
+
+    public function performPut($headers, $parameters, $accept) {
         $this->notImplementedResponse();
     }
 
-    public function performPost($_HEADERS, $parameters, $requestBody, $accept) {
+    public function performDelete($headers, $parameters, $accept) {
         $this->notImplementedResponse();
     }
 
-    public function performPut($_HEADERS, $parameters, $requestBody, $accept) {
-        $this->notImplementedResponse();
+    private function notImplementedResponse() {
+        header('Allow: ' . $this->supportedMethods, true , 501);
     }
 
-    public function performDelete($_HEADERS, $parameters, $requestBody, $accept) {
-        $this->notImplementedResponse();
-    }
-
-    protected function notImplementedResponse() {
-        header('Allow: ' . $this->supportedMethods, true, 501);
-    }
-
-    protected function methodNotAllowedResponse() {
+    private function methodNotAllowedResponse() {
         header('Allow: ' . $this->supportedMethods, true, 405);
     }
 
-    protected function notFoundResponse() {
-        header("HTTP/1.1 404 Not Found");
+    private function notFoundResponse() {
+        header("HTTP/1.1 404 Not Found", true, 404);
     }
 
-    protected function noContentResponse() {
-        header("HTTP/1.1 204 No Content");
+    private function noContentResponse() {
+        header("HTTP/1.1 204 No Content", true, 204);
+    }
+
+    private function internalErrorResponse() {
+        header("HTTP/1.1 500 Internal Server Error", true, 500);
+    }
+
+    private function badRequestResponse(){
+        header("HTTP/1.1 400 Bad Request", true, 400);
     }
 }

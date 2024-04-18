@@ -14,10 +14,10 @@ class Person {
     }
     
     // Attempt to save a person out to file.
-    public function SaveToFile($path) {
+    public function saveToFile($path) {
         try {
-            $file = fopen("people.txt", "a+");
-            $toWrite = sprintf("%s, %s, %s, %s", $name, $nickname, $age, $role);
+            $file = fopen($path, "a+");
+            $toWrite = sprintf("%s,%s,%s,%s", $this->name, $this->nickname, $this->age, $this->role);
             fwrite($file, $toWrite);
             fclose($file);
         }
