@@ -94,6 +94,7 @@ class RESTService {
     public function performPost($headers, $parameters, $accept) {
         switch($parameters[0]) {
             case "person":
+                // expected format name/nickname/age/role
                 if (count($parameters) < 5) {
                     $this->badRequestResponse();
                     return;
