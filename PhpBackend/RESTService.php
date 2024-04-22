@@ -59,7 +59,7 @@ class RESTService {
                 $line = fgets($myfile);
                 $details = explode(',', $line);
                 if (count($details) == 4){
-                    $people[] = new Person($details[0], $details[1], $details[2], $details[3]);
+                    $people[] = new Person(trim($details[0]), trim($details[1]), trim($details[2]), trim($details[3]));
                 }
             }
             fclose($myfile);
